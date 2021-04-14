@@ -1,0 +1,63 @@
+<div *ngIf="username">
+    <h2>{{ firstName }} {{ lastName }}</h2>
+    <div class="menu-container">
+        <div class="menu-items">
+            <button
+            [routerLink]="['/signup', 'emailaccount', username, userId]"
+            routerLinkActive="activebutton2">
+                Received emails ({{ numberOfUnreadMails }})
+            </button>
+            <button [routerLink]="['/signup', 'emailaccount', username, userId,
+            'sent', userId]"
+            routerLinkActive="activebutton">
+            Sent</button>
+            <button routerLink="spam" routerLinkActive="activebutton">
+            Spam</button>
+            <button [routerLink]="['/signup', 'emailaccount', username, userId,
+             'newemail', userId]"
+            routerLinkActive="activebutton">
+            New email</button>
+            <button [routerLink]="['/signup', 'emailaccount', username, userId,
+             'bin', userId]"
+            routerLinkActive="activebutton">
+            Bin({{ numberOfDeletedMails }})</button>
+            <button [routerLink]="['/signup', 'emailaccount', username, userId,
+             'bankaccount', userId]"
+            routerLinkActive="activebutton">
+            Bank Account</button>
+            <button [routerLink]="['/changepassword', userId]">
+            Change password</button>
+            <button (click)="logout()">
+                Logout
+            </button>
+        </div>
+    </div>
+    <router-outlet></router-outlet>
+    
+    
+    <!-- <h3>Write new email</h3>
+    <form #f="ngForm" (ngSubmit)="send(f.value)">
+        <input type="text" name="adress" ngModel 
+        required placeholder="email adress">
+        <textarea name="message" id="message" ngModel
+        cols="30" rows="10" placeholder="write your message here">
+        </textarea>
+        <button class="btn btn-primary" type="submit">
+            send
+        </button>
+    </form> -->
+    
+    
+    
+<div *ngIf="!username">
+    <h2>Unauthorizated Access</h2>
+    <button class="btn btn-danger" (click)="login()">
+        Sign in
+    </button>
+</div>
+<!-- <button class="btn btn-danger" (click)="compute()">
+    compute
+</button> -->
+
+    
+

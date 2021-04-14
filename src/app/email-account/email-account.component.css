@@ -1,0 +1,23 @@
+button {
+    border: 2px solid red;
+    padding: 2px;
+    background-color: blue;
+    color: red;
+}
+.section {
+    border: 2px solid blue;
+}
+li {
+    border: 4px solid green;
+}
+.activebutton {
+    background-color: red;
+    color: blue;
+    border: 3px solid blue;
+}
+.activebutton2 {
+    border: 2px solid red;
+    padding: 2px;
+    background-color: blue;
+    color: red;
+} 
