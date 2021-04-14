@@ -1,0 +1,43 @@
+<form  class="form-signin" #f="ngForm" 
+(ngSubmit)="sendMoneyPermanently(f.value)">
+    <h2 class="form-signin-heading">
+       Send money    
+    </h2>
+    <input type="number" name="accountNumber" id="accountNumber"
+    placeholder="Account number" class="form-control" ngModel>
+    <label for="frequency">Select Frequency:  </label>
+    <select name="frequency" id="frequency" ngModel required>   
+        <option value=10>Every 10 seconds</option>
+        <option value=60>Every minute</option>
+        <option value=600>Every 10 minutes</option>
+        <option value=3600>Every Hour</option>
+        <option value="other">Other</option>
+    </select>
+    <input type="number" name="frequencyInSeconds" id="frequencyInSeconds"
+    *ngIf="otherOptionChosen()" placeholder="Frequency in Seconds" ngModel>
+    <label for="firstPay">Time of First Payment</label>
+    <input type="time" step="1" name="firstPayment" id="firstPayment"
+    class="form-control" ngModel>
+    <input type="number" name="numberOfPayments" id="numberOfPayments"
+    placeholder="Number of Payments" ngModel>
+    <input type="number" name="amount" id="amount" class="form-control"
+    ngModel placeholder="Amount">
+    <input type="password" name="epin" id="epin" 
+    class="form-control" ngModel placeholder="epin">
+    <button type="submit" class="btn btn-primary"
+    style="background-color: orangered;">
+        Send money
+    </button>
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+    <div *ngIf="okResponse" class="alert" 
+    style="background-color: green;">
+        {{ okResponse }}
+    </div>
+</form>
+<button class="btn btn-primary"
+    [routerLink]="['/signup', 'emailaccount', username, userId,
+    'bankaccount', userId]">
+        Back to Transactions
+</button>
