@@ -1,0 +1,55 @@
+<h2>Received Emails</h2>
+<ul *ngIf="receivedMails" class="list-group">
+    <li *ngFor="let email of receivedMails; index as i;
+    trackBy: trackByMail"
+     class="list-group-item" [class.unread]="!email.read">
+        <div *ngIf="noEmailOpened" >
+            <div class="section">
+               <b>read: </b>{{ email.read }}
+                <b>From: </b> {{ email.from.firstName }} {{ email.from.lastName }}
+                 <br>
+             </div>
+             <div class="section">
+                 <b>Sent at </b>{{ email.time }}    
+                 <br>
+             </div>
+             <button 
+             class="btn btn-primary" (click)="openEmail(i)">
+                 Open email
+             </button>
+             <button class="btn btn-danger" (click)="deleteEmail(i)">
+                 Delete email
+             </button>
+        </div>
+        
+        <div *ngIf="openedEmail[i]" style="display: block;"
+         class="section2">
+            <div class="section">
+                <b>From: </b> {{ email.from.firstName }} {{ email.from.lastName }}
+                 <br>
+             </div>
+             <div class="section">
+                 <b>Sent at </b>{{ email.time }}    
+                 <br>
+             </div>
+             <div class="section">
+                 <b>Message</b> <br>
+                 {{ email.message }}
+             </div>
+             <button class="btn btn-primary" 
+             (click)="respond(i)">
+                 Respond
+             </button>
+             <button class="btn btn-primary" (click)="backToReceived(i)">
+                 Back
+             </button>
+             <button class="btn btn-danger" (click)="deleteEmail(i)">
+                Delete email
+            </button>
+        </div>
+    </li>
+</ul>
+        
+        
+    
+<!-- <button (click)="toAdmin()">To admin page</button> -->
