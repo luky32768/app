@@ -1,0 +1,42 @@
+<h2>Deleted Emails</h2>
+<ul class="list-group">
+    <li *ngFor="let email of deletedMails; index as i"
+     class="list-group-item">
+        <div *ngIf="noEmailOpened"
+            class="section">
+            <div *ngIf="email.to">
+                To:  {{ email.to }} 
+            </div>
+            <div *ngIf="email.from">
+                From: {{ email.from.firstName }} {{ email.from.lastName }}
+            </div>
+            Sent at {{ email.time }}
+            <button class="btn btn-primary" (click)="openEmail(i)">
+                Open email
+            </button>
+            <button class="btn btn-danger" (click)="deleteEmail(i)">
+                Delete
+            </button>
+        </div>
+        <div *ngIf="openedEmail[i]" class="section">
+            <div *ngIf="email.to">
+                To:  {{ email.to }}
+            </div>
+            <div *ngIf="email.from">
+                From: {{ email.from.firstName }} {{ email.from.lastName }}
+            </div>
+            Sent at {{ email.time }}
+            Deleted at {{ email.timeOfDelete }}
+            Message
+            {{ email.message }}
+            <button class="btn btn-danger" (click)="deleteEmail(i)">
+                Delete
+            </button>
+            <button class="btn btn-primary"
+             (click)="backToMails(i)">
+                Back
+            </button>
+        </div>
+        
+    </li>
+</ul>
