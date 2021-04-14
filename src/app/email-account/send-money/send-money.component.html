@@ -1,0 +1,27 @@
+<form  class="form-signin" #f="ngForm" (ngSubmit)="sendMoney(f.value)">
+    <h2 class="form-signin-heading">
+       Send money    
+    </h2>
+    
+    <input type="number" name="accountNumber" id="accountNumber"
+    placeholder="Account number" class="form-control" ngModel>
+    <input type="number" name="amount" id="amount" class="form-control"
+    ngModel placeholder="Amount">
+    <input type="password"  name="epin" id="epin" class="form-control"
+    ngModel placeholder="epin">
+    <button type="submit" class="btn btn-primary" 
+    style="background-color: orangered;">
+        Send money
+    </button>
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+    <div *ngIf="okResponse" class="ok-response">
+        {{ okResponse }}
+    </div>
+</form>
+<button class="btn btn-primary"
+    [routerLink]="['/signup', 'emailaccount', username, userId,
+    'bankaccount', userId]">
+        Back to Transactions
+</button>
