@@ -1,0 +1,47 @@
+<button class="btn btn-primary"
+[routerLink]="['/signup', 'emailaccount', username, userId,
+'sendmoney', userId]">
+    Send money (one-time)
+</button>
+<button class="btn btn-primary" style="background-color: orange;"
+[routerLink]="['/signup', 'emailaccount', username, userId,
+'sendmoneypermanent', userId]">
+    Send money (permanent)
+</button>
+<h2>Current Amount: {{ currentAmount }} ,-</h2>
+<h2>Past Transactions</h2>
+<ul class="list-group">
+    <li *ngFor="let transaction of pastTransactions; index as i"
+     class="list-group-item">
+        <div *ngIf="transaction.from">
+           <b>From: </b> {{ transaction.from }} <br>
+           <b>Bank Account: </b> {{ transaction.accountNumber }}
+           <b>Amount: </b> {{ transaction.amount }} ,-
+           <b>Date: </b> {{ transaction.time }}
+        </div>
+        <div *ngIf="transaction.to">
+           <b>To (account): </b>{{ transaction.to }} <br>
+           <b>Amount: </b> {{ transaction.amount }} ,- <br>
+           <b>Date: </b>{{ transaction.time }}
+        </div>
+        <button class="btn btn-danger"
+         (click)="deletePastTransaction(i)">
+            Delete Transaction
+        </button>
+    </li>
+    <button class="btn btn-warning" (click)="deletePastTransactions()">
+        Delete All Past Transactions
+    </button>
+</ul>
+<h2>Future Transactions</h2>
+<ul class="list-group">
+    <li *ngFor="let transaction2 of futureTransactions"
+     class="list-group-item">
+       <b>To (account): </b> {{ transaction2.to }}
+       <b>Time: </b> {{ transaction2.time }}
+       <b>Amount: </b> {{ transaction2.amount }} ,-
+    </li>
+    <button class="btn btn-danger" >
+        Delete All Future Transaction
+    </button>
+</ul>
