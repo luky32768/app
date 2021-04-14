@@ -1,0 +1,30 @@
+<h2>Sent Emails</h2>
+<ul class="list-group">
+    <li *ngFor="let email of sentEmails; index as i"
+     class="list-group-item">
+        <div *ngIf="noEmailOpened" class="section">
+            To:  {{ email.to }}
+            Sent at {{ email.time }}
+            <button class="btn btn-primary" (click)="openEmail(i)">
+                Open email
+            </button>
+            <button class="btn btn-danger" (click)="deleteEmail(i)">
+                Delete
+            </button>
+        </div>
+        <div *ngIf="openedEmail[i]" class="section">
+            To:  {{ email.to }}
+            Sent at {{ email.time }}
+            Message
+            {{ email.message }}
+            <button class="btn btn-danger" (click)="deleteEmail(i)">
+                Delete
+            </button>
+            <button class="btn btn-primary"
+             (click)="backToReceived(i)">
+                Back
+            </button>
+        </div>
+        
+    </li>
+</ul>
