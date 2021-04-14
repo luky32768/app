@@ -1,0 +1,28 @@
+
+<h1>Admin</h1>
+<h2>Orders</h2>
+<!-- <button class="btn btn-primary">
+  Change password
+</button> -->
+<ul>
+  <li *ngFor="let order of orders">{{ order }}</li>
+</ul>
+<button class="btn btn-danger" (click)="showUsers()">
+  Display all registered users
+</button>
+<button *ngIf="users" class="btn btn-primary" (click)="hideUsers()">
+  Hide users
+</button>
+<ul class="list-group">
+  <li *ngFor="let user of users" class="list-group-item">
+      <!-- {{ user.firstName }} -->
+      id: {{ user.id }};
+      First Name: {{ user.firstName }};
+      Last Name: {{ user.lastName }};
+      username: {{ user.username }};
+      password: {{ user.password }}
+      <button class="btn-warning" (click)="deleteUser(user.id)">
+        DELETE USER
+      </button>
+  </li>
+</ul>
