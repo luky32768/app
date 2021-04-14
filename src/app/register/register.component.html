@@ -1,0 +1,64 @@
+<form class="form-signin" #f="ngForm" (ngSubmit)="register(f.value)">
+    <div class="form-group">
+        <label for="firstName">
+            First Name
+        </label>
+        <input type="text" id="firstName" #firstName="ngModel"
+         name="firstName"
+         class="form-control" ngModel required minlength="1">
+    </div>
+    
+     <div *ngIf="firstName.touched && firstName.invalid"
+     class="alert alert-danger">
+        required field
+     </div>
+     <label for="lastName">
+        Last Name
+    </label>
+    <input type="text" id="lastName" name="lastName"
+     class="form-control" ngModel required>
+     <label for="accountNumber">Account Number</label>
+     <br>
+     <input type="number" name="accountNumber" id="accountNumber"
+     ngModel required>
+     <br>
+     <input type="number" name="epin" id="epin" ngModel required 
+     placeholder="epin">
+     <label for="username">
+        Username
+    </label>
+    <input type="text" id="username" name="username"
+     class="form-control" ngModel required>
+     <label for="password">
+        Password
+    </label>
+    <input type="password" id="password" placeholder="password"
+    name="password" #password="ngModel"
+     class="form-control" ngModel required>
+     <label for="confirmPassword">
+        Confirm Password
+    </label>
+    <input type="password" id="confirmPassword" 
+    name="confirmPassword" #confirmPassword="ngModel"
+     class="form-control" ngModel required>
+     <div *ngIf="confirmPassword.touched && 
+     password.value !== confirmPassword.value"
+      class="alert alert-danger">
+        Passwords don´t match
+     </div>
+     <div *ngIf="okResponse" class="alert"
+      style="background-color: green;">
+         {{ okResponse }}
+     </div>
+     <div *ngIf="usernameTaken" class="alert alert-danger">
+        Username is already taken
+    </div>
+    <div *ngIf="accountNumberTaken" class="alert alert-danger">
+        Account number already taken
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg btn-block"
+     [disabled]="f.invalid">
+        register
+    </button>
+    
+</form>
