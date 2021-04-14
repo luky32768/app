@@ -1,0 +1,18 @@
+<form class="form-signin" #f="ngForm" (ngSubmit)="submit(f.value)">
+    <h2>Sign in</h2>
+    <div *ngIf="invalidLogin" class="alert alert-danger">
+        Invalid credentials
+    </div>
+    <input type="text" class="form-control" name="username"
+    ngModel required placeholder="username" autofocus>
+
+    <input type="password" class="form-control" name="password"
+    ngModel required placeholder="password">
+
+    <input type="text" class="form-control" name="phone"
+    ngModel required placeholder="phone number">
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block">
+        Sign in
+    </button>
+</form>
