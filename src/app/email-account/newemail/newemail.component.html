@@ -1,0 +1,29 @@
+
+    <form [formGroup]="f" #form="ngForm" >
+        <h3 class="form-signin-heading">Write new email</h3>
+        <label for="adress" style="font-weight: 700;">
+            Adress
+        </label>
+        <div class="form-group">
+            <input type="text" id="adress" #adress
+             formControlName="adress"
+             name="adress">
+        </div>
+        <div class="form-group">
+            <textarea name="message" id="message" #message
+             formControlName="message"
+             cols="30" rows="10"
+             placeholder="write your message here...">
+            </textarea>
+        </div>
+        <button class="btn btn-primary"(click)="send(form.value)">
+            send
+        </button>
+        <div *ngIf="unknownEmailAdrress" class="alert alert-danger">
+            Email adrress does not exist
+        </div>
+        <div *ngIf="sentSuccessfully" class="alert" 
+        style="background-color: green;">
+            Email sent successfully
+        </div>
+    </form>
