@@ -12,12 +12,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const { url, method, headers, body } = request;
     let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNzA3MjE5MDIyfQ.';
-    localStorage.setItem('admin', JSON.stringify({
-      username: 'admin',
-      phone: 123,
-      password: '1'
-    })); // create an admin account
-
+    
     return of(null).pipe(
       mergeMap(handleRoute)
     )
