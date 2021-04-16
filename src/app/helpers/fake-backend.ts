@@ -12,8 +12,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const { url, method, headers, body } = request;
     let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNzA3MjE5MDIyfQ.';
-    // let users = [{ id: 1, username: 'luky', password: '1234', 
-    //   firstName: 'lukas' }];
+    localStorage.setItem('admin', JSON.stringify({
+      username: 'admin',
+      phone: 123,
+      password: 1
+    })); // create an admin account
 
     return of(null).pipe(
       mergeMap(handleRoute)
@@ -338,55 +341,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       localStorage.setItem('users', JSON.stringify(users));
       return ok();
     }
-    // function sendMoneyPermanently() {
-    //   let { accountNumber, amount, epin, frequency, timeOfFirstPayment }
-    //    = JSON.parse(body); // frequency and timeOfFirstPayment have been converted
-    //    // to miliseconds by emailservice
-    //   let sender = users.find(x => x.id === idFromUrl());
-    //   let senderId = sender.id;
-    //   let adressee = users.find(
-    //     x => x.bankAccount.accountNumber === accountNumber
-    //   );
-    //   if (!adressee) return throwError('account number does not exist');
-    //   if (sender.bankAccount.amount < amount) {
-    //     return throwError('you don´t have that much money');
-    //   }
-    //   sender.bankAccount.futureTransactions.unshift({
-    //     to: accountNumber, amount, time: timeOfFirstPayment
-    //   });
-    //   for (let property of ['epin', 'frequency', 'timeOfFirstPayment']) {
-    //     delete body[property];
-    //   }
-    //   const subscription = timer(timeOfFirstPayment - Date.now(), 
-    //   frequency).pipe(
-    //     take(5),
-    //     map(
-    //       time => {
-    //         // setFutureTransaction(
-    //         //   Object.assign(
-    //         //     JSON.parse(body),
-    //         //      { timeOfPayment: Date.now() + frequency, 
-    //         //      senderId }
-    //         //   )
-    //         // );
-    //         sender.bankAccount.pastTransactions.unshift({
-    //           to: accountNumber, amount, time: getCurrentTime()
-    //         });
-    //         adressee.bankAccount.pastTransactions.unshift({
-    //           from: sender.firstName + ' ' + sender.lastName,
-    //           amount,
-    //           time: getCurrentTime()
-    //         });
-    //       } 
-          
-    //     )
-    //   ).subscribe(x => { 
-    //         console.log('amount: ' + x);
-    //         localStorage.setItem('users', JSON.stringify(users));
-    //         return ok('money sent');
-    //       }
-    //     );
-    // }
+    
     function setFutureTransaction() {
       let { accountNumber, amount, epin, timeOfPayment } =
        JSON.parse(body);
@@ -421,12 +376,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       return ok(amount);
     }
     function deleteFutureTransaction() {
-      // let urlParts = url.split('/');
-      // let indexOfTransaction = + urlParts[urlParts.length - 2];
       let user = users.find(x => x.id === idFromUrl());
       let timeNow = new Date().toLocaleTimeString();
       let futureTransactions = user.bankAccount.futureTransactions;
-      let transaction = futureTransactions.find(x => x.time = timeNow);
+      let transaction = futureTransactions.find(x => x.time === timeNow);
       let index = futureTransactions.indexOf(transaction);
       user.bankAccount.futureTransactions.splice(index, 1);
       localStorage.setItem('users', JSON.stringify(users));
@@ -447,8 +400,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       return throwError({ status: 201, error: { message: 'unauthorizated '} });
     }
     function isLoggedIn() {
-      let jwtHelper = new JwtHelperService();
-      let expiration = jwtHelper.getTokenExpirationDate(token);
       return headers.get('Authorization') === 'Bearer' + token;
     }
     function idFromUrl() {
@@ -457,7 +408,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     }
     function createTokenExpiration() {
       let now = new Date().getTime();
-      let expiration = now + 15000;
+      let expiration = now + 150000;
       return expiration.toString();
     }
     function append(x: number) {
@@ -472,6 +423,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
           return "";
       }
     }
+    // some functions to implement encoding jwt; but I have not used them yet to create a jwt for logged user
     function base64Encode(s: string) {
       let x = s.length % 3;
       let append2 = append(x);
@@ -519,40 +471,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }
       return result;
     }
-    const secondsCounter = interval(1000);
-    secondsCounter.subscribe(number => console.log(`${number + 1} seconds gone`));
-    const el = document.getElementById('demo');
-    const mouseMoves = fromEvent(el, 'mousemove');
-    const subscription = mouseMoves.subscribe(
-      (event: MouseEvent) => {
-        console.log(`coords: ${event.clientX} X ${event.clientY}`);
-        if (event.clientX < 40 && event.clientY < 40) subscription.unsubscribe(); }
-      )
-    let count = 0;
-    let x = new Number(6);
-    const clickCounter = fromEvent(document, 'click')
-        .pipe(scan(count => count + 1, 0))
-        .subscribe(() => console.log(`this was your ${count}´th click`));
-        let sum = 0;
-        const sumOfPositions = fromEvent(document, 'click')
-        .pipe(
-          throttleTime(1000),
-          // map((evt: MouseEvent) => evt.clientX),
-          scan((count, evt: MouseEvent) => count + evt.clientX, 0)
-        ).subscribe((sumClientX) => { 
-            console.log(`clicked ${count} times
-            and the sum is ${sumClientX}`) });
-    const numbers = of(1, 2, 3, 'x');
-    const squaredOddNums = numbers.pipe(
-      filter(val => typeof(val)==='number'),
-      filter((val: number) => val % 2 !== 0),
-      map((val: number) => val*val)
-    );
-    const subscription2 = squaredOddNums.subscribe(number => console.log(number));
     
-  }
-} 
-
 export const FakeBackendProvider = {
   provide: HTTP_INTERCEPTORS,
   useClass: FakeBackendInterceptor,
