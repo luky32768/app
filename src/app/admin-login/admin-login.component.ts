@@ -14,6 +14,11 @@ export class AdminLoginComponent implements OnInit {
     private router: Router) { }
 
   ngOnInit(): void {
+    localStorage.setItem('admin', JSON.stringify({
+      username: 'admin',
+      phone: 123,
+      password: '1'
+    })); // create an admin account
   }
   submit(credentials) {
     console.log(credentials);
