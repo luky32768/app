@@ -15,7 +15,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     localStorage.setItem('admin', JSON.stringify({
       username: 'admin',
       phone: 123,
-      password: 1
+      password: '1'
     })); // create an admin account
 
     return of(null).pipe(
