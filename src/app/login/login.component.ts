@@ -15,15 +15,6 @@ export class LoginComponent {
     private router: Router, 
     private service: AuthService) { }
 
-  // signIn(credentials) {
-  //   this.authService.login(credentials)
-  //     .subscribe(result => { 
-  //       if (result)
-  //         this.router.navigate(['/']);
-  //       else  
-  //         this.invalidLogin = true; 
-  //     });
-  // }
   signIn(credentials) {
     this.service.login(credentials)
       .subscribe(response => {
