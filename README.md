@@ -10,7 +10,7 @@ Bin (emails you have deleted), New email (for writing a new email)...
 
 I also implemented internetbanking aplication, which is available for anyone who successfully logs in his email account.
 You can make a one-time payment, or a regular payment (not permanent): you can set the frequency, time of the first payment 
-and number of payments. To execute future transactions i have created rxjs observables. You can cancel any of your future transactions, 
+and number of payments. To execute future transactions i have created rxjs observables (timers). You can cancel any of your future transactions, 
 or all of them at once. You can see the list of your upcoming future transactions (in the bank account app) ordered by time.
 You can run more regular payments at once and you will see them merged in the list of future transactions.
 
