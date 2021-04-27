@@ -9,10 +9,10 @@ let users = JSON.parse(localStorage.getItem('users')) || [];
 let emailStorage = JSON.parse(localStorage.getItem('emailStorage')) || [];
 
 export class FakeBackendInterceptor implements HttpInterceptor {
+
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const { url, method, headers, body } = request;
-    let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNzA3MjE5MDIyfQ.';
-    
+
     return of(null).pipe(
       mergeMap(handleRoute)
     )
@@ -32,8 +32,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
           return getUsers();
         case url.match(/\/users\/\d+$/) && method === 'DELETE':
           return deleteUser();
-        // case url.match(/\/users\/\d+$/) && method === 'PUT':
-        //   return updateUser();
         case url.match(/\/users\/\d+$/) && method === 'GET':
           return getUserById();
         case url.match(/\/users\/\d+$/) && method === 'PUT':
@@ -43,21 +41,29 @@ export class FakeBackendInterceptor implements HttpInterceptor {
           return updateEmail();
         case url.endsWith('/api/orders') && method === 'GET':
           return getOrders();
-        case url.match(/\/email\/\d+$/) && method === 'POST':
+        case url.match(/\/emails\/\d+$/) && method === 'POST':
           return saveEmail();
-        case url.match(/\/email\/received\/\d+\/\d+$/)
+        case url.match(/\/emails\/received\/\d+\/\d+$/)
          && method === 'DELETE':
           return deleteEmail('received');
-        case url.match(/\/email\/sent\/\d+\/\d+$/)
+        case url.match(/\/emails\/receivedtospam\/\d+\/\d+$/)
+          && method === 'DELETE':
+          return deleteEmail('receivedtospam');
+        case url.match(/\/emails\/sent\/\d+\/\d+$/)
          && method === 'DELETE':
           return deleteEmail('sent');
-        case url.match(/\/email\/bin\/\d+\/\d+$/)
+        case url.match(/\/emails\/spam\/\d+\/\d+$/)
+          && method === 'DELETE':
+           return deleteEmail('spam');
+        case url.match(/\/emails\/bin\/\d+\/\d+$/)
          && method === 'DELETE':
           return deleteEmail('bin');
         case url.match(/\/emails\/received\/\d+$/) && method === 'GET':
           return getReceivedMails();
         case url.match(/\/emails\/sent\/\d+$/) && method === 'GET':
           return getSentMails();
+        case url.match(/\/emails\/spam\/\d+$/) && method === 'GET':
+          return getSpamEmails();
         case url.match(/\/emails\/bin\/\d+$/) && method === 'GET':
           return getDeletedMails();
         case url.match(/\/bankaccount\/amount\/\d+$/) && method === 'GET':
@@ -71,10 +77,16 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         case url.match(/\/bankaccount\/pasttransactions\/\d+\/\d+$/)
           && method === 'DELETE':
           return deletePastTransaction();
-          case url.match(/\/bankaccount\/futuretransaction\/\d+$/)
+          case url.match(/\/bankaccount\/futuretransactions\/\d+$/)
           && method === 'DELETE':
           return deleteFutureTransaction();
-        case url.match(/\/bankaccount\/futuretransaction\/\d+$/)
+        case url.match(/\/futuretransactions\/\d+\D\d+\D\d+\/\d+$/)
+          && method === 'DELETE':
+          return cancelFutureTransaction();
+        case url.match(/\/futuretransactions\/\d+$/)
+         && method === 'DELETE':
+         return cancelFutureTransactions();
+        case url.match(/\/bankaccount\/futuretransactions\/\d+$/)
           && method === 'POST':
           return setFutureTransaction();
         case url.match(/\/bankaccount\/send\/\d+$/) && method === 'POST':
@@ -105,7 +117,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         username: username,
         firstName: user.firstName,
         lastName: user.lastName,
-        token
+        token: createToken(user)
       });
     }
     function register() {
@@ -129,7 +141,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       emailStorage.push({ id: user.id, username: user.username, 
       received: [{ from: { firstName: 'Boss', lastName: 'Admin' }, 
       username: 'admin',
-      time: getCurrentTime(), message: 'Welcome, ' +
+      time: getCurrentTime(), subject: 'Welcome Email',
+       message: 'Welcome, ' +
        user.firstName + 
        ' ! Have fun using my email application.', read: false }],
       sent: [], bin: [], spam: [] });
@@ -198,25 +211,28 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       // if (!isLoggedIn()) return unauthorizated();
       console.log('server has got the mail');
       let sender = users.find(x => x.id === idFromUrl());
-      console.log('sender: ' + sender);
       let senderName = { firstName: sender.firstName, 
       lastName: sender.lastName };
       console.log(senderName);
-      let username = body.adress;
+      let parsedBody = body;
+      let username = parsedBody.address;
       console.log(username);
       let user = users.find(x => x.username === username);
-      if (!user) return throwError('email adress does not exist');
+      if (!user) return throwError('email address does not exist');
 
       let receiverStorage = emailStorage.find(x => x.username === username);
       receiverStorage.received.splice(0, 0, 
-        { from: senderName, username: sender.username,
-           time: body.time, message: body.message, read: false });
+        { from: senderName, username: sender.username, 
+          to: user.firstName + ' ' + user.lastName,
+          time: parsedBody.time, subject: parsedBody.subject,
+          message: parsedBody.message, read: false });
       let senderStorage = emailStorage.find(x => x.id === idFromUrl());
       senderStorage.sent.splice(0, 0, 
-        { to: body.adress, time: body.time, message: body.message });
-      console.log(senderStorage);
-      console.log(emailStorage);
+        { to: parsedBody.address, from: senderName,
+           time: parsedBody.time, 
+          subject: parsedBody.subject, message: parsedBody.message });
       localStorage.setItem('emailStorage', JSON.stringify(emailStorage));
+      return ok();
     }
     function getReceivedMails() {
       // if (!isLoggedIn()) return unauthorizated();
@@ -229,6 +245,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       let userStorage = emailStorage.find(x => x.id === idFromUrl());
       let sent = userStorage.sent;
       return ok(sent); 
+    }
+    function getSpamEmails() {
+      let userStorage = emailStorage.find(x => x.id === idFromUrl());
+      let spamEmails = userStorage.spam;
+      return ok(spamEmails);
     }
     function getDeletedMails() {
       let userStorage = emailStorage.find(x => x.id === idFromUrl());
@@ -244,22 +265,33 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       let userStorage = emailStorage.find(x => x.id === id);
       let received = userStorage.received;
       let sent = userStorage.sent;
+      let spam = userStorage.spam;
       let bin = userStorage.bin;
       if (folder === 'received') {
         let spliced = received.splice(deletedMail, 1)[0];
         Object.assign(spliced, { timeOfDelete });
-        console.log(received);
         bin.splice(0, 0, spliced);
       }
+      else if (folder === 'receivedtospam') {
+        let spliced = received.splice(deletedMail, 1)[0];
+        Object.assign(spliced, { timeOfDelete });
+        spam.splice(0, 0, spliced);
+      }
       else if (folder === 'sent') {
-        console.log('before: ' + sent);
         let spliced = sent.splice(deletedMail, 1)[0];
         Object.assign(spliced, { timeOfDelete });
-        console.log('after: ' + sent);
+        bin.splice(0, 0, spliced);
+      }
+      else if (folder === 'spam') {
+        let spliced = spam.splice(deletedMail, 1)[0];
+        Object.assign(spliced, { timeOfDelete });
         bin.splice(0, 0, spliced);
       }
       else if (folder === 'bin') {
         console.log(bin.splice(deletedMail, 1));
+        console.log(bin);
+        // console.log(base64Encode('ahojky'))
+        // console.log(base64Encode('ahojky, jak'))
       }
       localStorage.setItem('emailStorage', JSON.stringify(emailStorage));
       return ok('deleted');
@@ -299,6 +331,16 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       localStorage.setItem('users', JSON.stringify(users));
       return ok();
     }
+    
+    function checkTime() {
+      let sender = users.find(x => x.id === idFromUrl());
+      let { time } = JSON.parse(body);
+      if (!time) return true;
+      let futureTransactions = sender.bankAccount.futureTransactions;
+      if (futureTransactions.find(x => x.time === time)) return true;
+
+      return false;
+    }
     function sendMoney() {
       let { accountNumber, amount, epin } = JSON.parse(body);
       console.log(JSON.parse(body));
@@ -307,33 +349,38 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (parseInt(epin) !== sender.bankAccount.epin) {
         return throwError('incorrect epin');
       }
-      let adressee = users.find(
-        x => x.bankAccount.accountNumber === accountNumber
-      );
-      if (!adressee) return throwError('account number does not exist');
-      if (sender.bankAccount.amount < amount) {
-        return throwError('you don´t have that much money');
+      console.log('checked time: ' + checkTime());
+      if (checkTime()) {
+        let adressee = users.find(
+          x => x.bankAccount.accountNumber === accountNumber
+        );
+        if (!adressee) return throwError('account number does not exist');
+        if (sender.bankAccount.amount < amount) {
+          return throwError('you don´t have that much money');
+        }
+        adressee.bankAccount.amount += parseInt(amount);
+        sender.bankAccount.amount -= parseInt(amount);
+        console.log('amount: ' + amount);
+        console.log(adressee.bankAccount.amount);
+        console.log(sender.bankAccount.amount);
+        adressee.bankAccount.pastTransactions.unshift({
+          from: sender.firstName + " " + sender.lastName,
+          accountNumber: sender.bankAccount.accountNumber,
+          amount,
+          time: getCurrentTime()
+        });
+        sender.bankAccount.pastTransactions.unshift({
+          to: adressee.bankAccount.accountNumber,
+          amount,
+          time: getCurrentTime()
+        });
+        deleteFutureTransaction();
+        localStorage.setItem('users', JSON.stringify(users));
+        return ok();
       }
-      adressee.bankAccount.amount += parseInt(amount);
-      sender.bankAccount.amount -= parseInt(amount);
-      console.log('amount: ' + amount);
-      console.log(adressee.bankAccount.amount);
-      console.log(sender.bankAccount.amount);
-      adressee.bankAccount.pastTransactions.unshift({
-        from: sender.firstName + " " + sender.lastName,
-        accountNumber: sender.bankAccount.accountNumber,
-        amount,
-        time: getCurrentTime()
-      });
-      sender.bankAccount.pastTransactions.unshift({
-        to: adressee.bankAccount.accountNumber,
-        amount,
-        time: getCurrentTime()
-      });
-      localStorage.setItem('users', JSON.stringify(users));
-      return ok();
+      return ok('no money sent, transaction has been cancelled');
+      
     }
-    
     function setFutureTransaction() {
       let { accountNumber, amount, epin, timeOfPayment } =
        JSON.parse(body);
@@ -371,9 +418,35 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       let user = users.find(x => x.id === idFromUrl());
       let timeNow = new Date().toLocaleTimeString();
       let futureTransactions = user.bankAccount.futureTransactions;
-      let transaction = futureTransactions.find(x => x.time === timeNow);
+      let transaction = futureTransactions.find(x => x.time = timeNow);
       let index = futureTransactions.indexOf(transaction);
       user.bankAccount.futureTransactions.splice(index, 1);
+      localStorage.setItem('users', JSON.stringify(users));
+      return ok();
+    }
+    function cancelFutureTransaction() {
+      let urlParts = url.split('/');
+      let timeOfTransaction = urlParts[urlParts.length - 2];
+      console.log('time: ' + timeOfTransaction);
+      let sender = users.find(x => x.id === idFromUrl());
+      let futureTransactions = sender.bankAccount.futureTransactions;
+      let transaction = futureTransactions.find(
+        x => x.time === timeOfTransaction
+      );
+      let index = futureTransactions.indexOf(transaction);
+      futureTransactions.splice(index, 1);
+      localStorage.setItem('users', JSON.stringify(users));
+      return ok();
+    }
+    function cancelFutureTransactions() {
+      let sender = users.find(x => x.id === idFromUrl());
+      let transactions = sender.bankAccount.futureTransactions;
+      // sender.bankAccount.futureTransactions = []; ..neaktualizuje se
+      //  u clienta
+      // while (transactions.length > 0) {
+      //   transactions.splice(0, 1);
+      // } ...works
+      transactions.splice(0, transactions.length - 1);
       localStorage.setItem('users', JSON.stringify(users));
       return ok();
     }
@@ -392,35 +465,39 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       return throwError({ status: 201, error: { message: 'unauthorizated '} });
     }
     function isLoggedIn() {
-      return headers.get('Authorization') === 'Bearer' + token;
+      return headers.get('Authorization') === 'Bearer' + this.token;
     }
     function idFromUrl() {
       const fragments = url.split('/');
       return parseInt(fragments[fragments.length - 1]);
     }
+    function createToken(user) {
+      let header = JSON.stringify({
+        alg: "RS256",
+        typ: "JWT"
+      });
+      let payload = JSON.stringify({
+        sub: user.id.toString(),
+        name: user.firstName + ' ' + user.lastName,
+        iat: createTokenExpiration()
+      });
+      let token = base64UrlEncode(header) + '.' + 
+      base64UrlEncode(payload); // without signature yet
+      const privateKey = 11;
+      let signature = encryptHash(customHash(token), privateKey)
+      .toString();
+      token = token.concat('.', signature);
+      localStorage.setItem('token', token);
+      return token;
+    }
     function createTokenExpiration() {
-      let now = new Date().getTime();
-      let expiration = now + 150000;
-      return expiration.toString();
+      let secondsNow =Math.floor(new Date().getTime() / 1000);
+      let expiration = secondsNow + 300; // give the user 5 minutes:)
+      return expiration;
     }
-    function append(x: number) {
-      switch (x % 3) {
-        case 1:
-          return "==";
-          break;
-        case 2:
-          return "=";
-          break;
-        default:
-          return "";
-      }
-    }
-    // some functions to implement encoding jwt; but I have not used them yet to create a jwt for logged user
-    function base64Encode(s: string) {
-      let x = s.length % 3;
-      let append2 = append(x);
-      let extended = s.concat(append2);
-      return asciiToString(stringToAscii(extended))
+    
+    function base64UrlEncode(s: string) {
+      return asciiToString(stringToAscii(s));
     }
     function stringToAscii(s: string) {
       let array = s.split('');
@@ -430,15 +507,24 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     }
     function asciiToString(array: number[]) {
       let result = "";
-      let numberOfParts = array.length / 6;
+      let numberOfParts = parseInt((array.length / 6).toString());
+      let lengthOfRemain = array.length % 6;
       let parts = [];
       for (let i = 0; i < numberOfParts; i++) {
         let asciiCode = 0;
         for (let index = i * 6; index < (i + 1) * 6; index++) {
           asciiCode += array[index] * Math.pow(2, 5 - (index % 6));
         }
-        result = result.concat(String.fromCharCode(65 + asciiCode));
+        result = result.concat(stringFromCharCode(asciiCode));
       }
+      if (lengthOfRemain > 0) {
+        let asciiCode = 0;
+        for (let i = 0; i < lengthOfRemain; i++) {
+          asciiCode += array[6 * numberOfParts + i] * Math.pow(2, 5 - i);
+        }
+        result = result.concat(stringFromCharCode(asciiCode));
+      }
+      
       return result;
     }
     function numberToBits(x: number) {
@@ -454,16 +540,46 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }
       return result;
     }
+    function stringFromCharCode(code: number) {
+      if (0 <= code && code < 26) {
+        return String.fromCharCode(65 + code);
+      } 
+      else if (25 < code && code < 52) {
+        return String.fromCharCode(97 - 26 + code);
+      }
+      else if (51 < code && code < 62) {
+        return String.fromCharCode(code - 4)
+      } 
+      else if (code === 62) return '-';
+      else if (code === 63) return '_';
+    }
     function flat(secondOrder: any[][]) {
       let result = [];
       for (let subarray of secondOrder) {
         for (let i of subarray) {
-          result.unshift(i);
+          result.push(i);
         }
       }
       return result;
     }
+    function encryptHash(hash: number, privateKey: number) {
+      return Math.pow(hash, privateKey) % publicKey.n;
+    }
     
+    
+  }
+} 
+export function customHash(s: string) {
+  let result = 0; 
+  for (let index = 0; index < s.length; index++) {
+    result += s.charCodeAt(index);
+  }
+  return result % publicKey.n; // < publicKey.n to make RSA work
+};
+export function decrypt(encrypted: number) {
+  return Math.pow(encrypted, publicKey.e) % publicKey.n;
+}
+export const publicKey = { n: 35, e: 11 };
 export const FakeBackendProvider = {
   provide: HTTP_INTERCEPTORS,
   useClass: FakeBackendInterceptor,
