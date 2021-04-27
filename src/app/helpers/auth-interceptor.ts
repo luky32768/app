@@ -16,7 +16,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (this.service.isLoggedIn) {
             if (token === '') {
                 this.service.logout();
-                this.router.navigate(['/signup']);
+                this.router.navigate(['/signin']);
                 console.log('session has expired');
                 return next.handle(request);
             }
