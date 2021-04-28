@@ -290,8 +290,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       else if (folder === 'bin') {
         console.log(bin.splice(deletedMail, 1));
         console.log(bin);
-        // console.log(base64Encode('ahojky'))
-        // console.log(base64Encode('ahojky, jak'))
       }
       localStorage.setItem('emailStorage', JSON.stringify(emailStorage));
       return ok('deleted');
