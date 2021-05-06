@@ -1,5 +1,6 @@
 # Emails & Internet Banking
 
+Updated project here: https://stackblitz.com/edit/emails-and-internetbanking
 This is my implementation of a backendless application for emails and internet banking. 
 To create a fake backend I have used an extended HttpInterceptor, and as a database browser localStorage, similarly to what I have seen 
 on this page: https://jasonwatmore.com/post/2020/07/18/angular-10-fake-backend-example-for-backendless-development
